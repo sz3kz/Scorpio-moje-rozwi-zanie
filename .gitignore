@@ -1,0 +1,12 @@
+.vscode
+.idea
+build
+*.o
+*.exe
+*.out
+*.log
+*.tmp
+*.cache
+*.swp
+*.bak
+*.dSYM

@@ -1,169 +1,301 @@
 # Projekt Scorpio - zadanie rekrutacyjne do działu Software
-W celu realizacji zadania konieczne będzie zainstalowanie ROS2 w wersji Humble (zalecany system operacyjny to Ubuntu 22.04).
-Na repozytorium znajduje się paczka ROS2 umożliwiająca połączenie z symulacją, sama symulacja, oraz przykładowy package ROS2.
->**Uwaga!** Przed przystąpieniem do realizacji zadania przeczytaj **całe** README.
+
+> **Uwaga!** Przed przystąpieniem do realizacji zadania przeczytaj **całe** README i pamiętaj, żeby wypełnić [formularz rekrutacyjny](https://docs.google.com/forms/d/e/1FAIpQLSejymgG4B_sdydx00Q5eeRah45qMMkzDeamQehD1HjqQF-UJw/viewform?usp=header).
+
 ## Spis treści
 - [Informacje ogólne](#informacje-ogólne)
 - [Zadania do wykonania](#zadania-do-wykonania)
 - [Specyfikacja techniczna zadania](#specyfikacja-techniczna-zadania)
-  - [Specyfikacja danych](#specyfikacja-danych)
-  - [Uruchamianie symulatora](#uruchamianie-symulatora)
+  - [Symulacja](#symulacja)
+  - [Dokumentacja API](#dokumentacja-api)
+  - [Dokumentacja argumentów CLI](#dokumentacja-argumentów-cli)
 - [Wskazówki i przydatne linki](#wskazówki-i-przydatne-linki)
-- [Przydatne ROSowe komendy CLI](#przydatne-rosowe-komendy-cli)
 
 ## Informacje ogólne
-Zadanie wykorzystuje trójwymiarową symulację łazika marsjańskiego, w której możliwy jest ruch poszczególnymi silnikami kół, odczyt danych z sensorów oraz podgląd obrazu z kamery. Symulacja umożliwia połączenie z ROS2, co pozwala na wysyłanie oraz odczyt danych. Obraz z kamery jest widoczny w okienku po uruchomienu symulacji.
+Zadanie wykorzystuje symulację dwu-osiowej platformy obrotowej, w której za pomocą stworzonego przez nas API można sterować dwoma silnikami oraz dokonywać odczytu wartości ich enkoderów liniowych (wytłumaczenie, czym jest enkoder znajdziesz w tym [artykule](https://stoltronic.pl/pl/blog/post/43/enkoder-zasada-dzialania-rodzaje-budowa?page_type=post)). Silnik numer 1 jest odpowiedzialny za ruch w osi poziomej, zaś numer 2 w pionowej.
 
-Łazik znajduje się w zamkniętej tubie o szerokości ~3.5m. Wewnątrz tuby znajduje się zdjęcie z jaskrawą, czerwoną ramką.
-Zdjęcie jest losowo umieszczane w tubie przy uruchomieniu symulacji.
+Uznajemy, na potrzebę zadań, że na osi pionowej zamontowana jest kamera, którą możemy się rozglądać sterując silnikami.
 
-Całość zadania należy wykonać używając frameworku Robot Operating System 2, a kod powinien być napisany w C++.
+Całość zadania należy wykonać w języku C++, zgodnie ze standardem C++17.
+
+Rozwiązane zadanie należy umieścić w **publicznym** repozytorium (np. GitHub) i przesłać linka do tego repozytorium na mail projekt@scorpio.pwr.edu.pl. Ewentualne pytania lub wątpliwości co do treści zadania można kierować na tego samego maila. Zadania przyjmujemy do 11.11.2025 do końca dnia.
 
 ## Zadania do wykonania 
-W tej części znajdziesz ogólny opis zadań, szczegółowy opis wraz ze specyfikacją techniczną znajdziesz w sekcji [specyfikacja techniczna zadania](#specyfikacja-techniczna-zadania).
+W tej części znajdziesz treść poszczególnych zadań. Szczegółowe informacje dotyczące symulacji oraz jej implementacji znajdziesz w sekcji [specyfikacja techniczna zadania](#specyfikacja-techniczna-zadania).
 
 Pamiętaj, że zadanie służy sprawdzeniu wielu umiejętności - nie tylko programowania i znajomości algorytmów -  więc nawet w przypadku zrealizowania tylko części z poniższych punktów, zachęcamy do przesłania rozwiązania. Postępy w zadaniu powinny być udokumentowane w repozytorium na githubie (po każdym etapie zadania powinien zostać stworzony nowy commit).
 
-1. **Instalacja ROS2 i budowanie paczki do połączenia z symulacją:**
-- W repozytorium została przygotowana paczka ROS2 zawierająca narzędzie umożliwiąjące podłączenie symulacji do ROS2. Repozytorium należy sklonować i zbudować paczkę w ROS2. Szczegóły działania paczki są opisane w sekcji [specyfikacja techniczna zadania](#specyfikacja-techniczna-zadania).
+1. **Zbudowanie projektu:**
 
-> **Wskazówka!** Dobrym rozwiązaniem jest "fork" tego repozytorium
+- Dokonaj fork'a tego repozytorium i go sklonuj komendą `git clone <URL zforkowanego repo>`.
+- Skonfiguruj środowisko i upewnij się, że projekt kompiluje się przy użyciu `CMake`:
 
-2. **Stworzenie node'a ROSowego do sterowania łazikiem:**
-- Celem jest stworzenie node'a, który umożliwia sterowanie prędkością łazika.
-- Node subskrybuje prędkości obrotowe kół z topic'ów `/wheel_XX/get_velocity`, gdzie XX to oznaczenie koła (`lf`, `rf`, `lr`, `rr`)
-- Node subskrybuje komendy sterujące z topicu `/cmd_vel` i generuje odpowiednie moce dla każdego z silników, aby osiągnąć zadaną prędkość łazika z tego topicu.
-- Node publikuje dane na topic'i `/wheel_XX/set_effort`, gdzie XX to oznaczenie koła (`lf`, `rf`, `lr`, `rr`), a dane to moc (sygnał PWM) podawana na silnik koła.
+---
 
-3. **Stworzenie node'a do autonomicznego przejazdu przez tubę:**
-- Node subskrybuje topic'i `/sensor/left` i `/sensor/right` zawierające odczyty z czujników odległości znajdujących się z przodu po lewej i prawej stronie łazika.
-- Node na podstawie odczytów z sensorów steruje łazikiem tak, aby łazik autonomicznie mógł przejechać przez całą tubę.
-- Autonomiczny przejazd powinno dać się uruchomić/zatrzymać za pomocą serwisu ROSowego `/enable_autonomy`.
+| Krok | Linux (bash) | Windows (PowerShell / cmd) |
+|------|--------------|----------------------------------------------|
+| 1. Wejście do repo | `cd scorpio_zadanie_rekrutacyjne_software` | `cd scorpio_zadanie_rekrutacyjne_software` |
+| 2. Utwórz katalog build | `mkdir build && cd build` | `mkdir build && cd build` |
+| 3. Generuj pliki przez CMake | `cmake ..` | `cmake ..` |
+| 4. Budowanie | `cmake --build .` | `cmake --build . --config Release` |
+| 5. Uruchom program | `./scorpio_recruitment_task` | `.\Release\scorpio_recruitment_task.exe` |
 
-> **Wskazówka!** Pamiętaj o regularnym commitowaniu zmian.
+---
 
-4. **Stworzenie node'a do detekcji zdjęcia w tubie:**
-- W tubie, w losowo wybranym miejscu znajduje się nieznane kwadratowe zdjęcie z jaskrawą, czerwoną ramką.
-- Node subkrybuje obraz z kamery umieszczonej na maszcie łazika z topicu `/camera/image`.
-- Do realizacji tego zadania nie wolno używać obrazu w oknie symulacji.
-- Za pomocą wybranej biblioteki do przetwarzania obrazu należy zaimplementować algorytm detekcji kolorowej ramki.
-- Node powinien analizować obraz z topicu w trakcie jego działania, a po wykryciu zdjęcia, node powinien zapisać na dysku klatkę obrazu z kamery z wykrytym zdjęciem.
-- Na obrazie zapisanym na dysku powinno być wyraźnie widać zdjęcie w ramce.
+- W uruchomionym programie zadaj cel za pomocą wiersza poleceń, np: `5 3 4 5`. Wyjaśnienie tego, co oznaczają poszczególne liczby znajdziesz w sekcji [wprowadzanie celów](#wprowadzanie-celów).
+- Za pomocą `Ctrl+D` zakończ wprowadzanie celów. Gdy zaimplementujesz swoje rozwiązanie, to po wciśnięciu `Ctrl+D` zadane punkty zostaną mu przekazane. Na tym etapie zostanie wykonany przykład zawarty w funkcji `solver()` w `/src/solution/solution.cpp`.
 
-> **Uwaga!** Zdjęcia w ramce mogą być różne, ale zawsze będą miały czerwoną ramkę o stałych wymiarach.
+2. **Dojazd do pojedyńczego celu**
+
+- Zostanie Ci przesłany pojedyńczy punkt. Należy obrócić obydwoma silnikami tak, aby kamera patrzyła na ten punkt.
+
+Przykład testowy:
+
+```bash
+0 1 1 0
+```
+
+> **Wskazówka!** Żeby nie wprowadzać danych za każdym razem, możesz przekleić przykład testowy do pliku i wykorzystać flagę `-f` udokumentowaną w sekcji [dokumentacja argumentów CLI](#dokumentacja-argumentów-cli) 
+
+> **Wskazówka!** W sekcji [symulacja](#symulacja) znajdziesz dokładny opis platformy obrotowej.
+
+3. **Dojazd do wielu celów (priorytet ostatniego)**
+
+- Zostanie przesłana arbitralna liczba punktów w odstępach niewiększych niż 10 sekund. Każdy punkt należy obsłużyć dokładnie tak jak w poprzednim zadaniu. Jeżeli podczas dojazdu do celu zostanie zadany kolejny cel, należy obecny cel porzucić.
+- W tym zadaniu należy uruchamiać program z flagą `-p`.
+
+Przykład testowy:
+
+```bash
+0 1 1 0
+10 1 1 1
+1 -1 0 0
+3 1 1 0
+```
+
+> **Wskazówka!** Pamiętaj o regularnym commitowaniu rozwiązania.
+
+4. **Dojazd do wielu celów (kolejka)**
+
+- Zostanie przesłana arbitralna liczba punktów w odstępach niewiększych niż 10 sekund. Należy każdy z tych punktów obsłużyć dokładnie tak jak w poprzednim zadaniu, dojeżdżając do każdego po kolei, bez wywłaszczenia.
+- W tym zadaniu **nie należy** używać flagi `-p`.
+
+Przykład testowy:
+
+```bash
+0 1 1 0
+10 1 1 1
+1 -1 0 0
+3 1 1 0
+```
+
+> **Wskazówka!** Oczekujemy, że sam określisz margines dojechania do celu.
 
 ## Specyfikacja techniczna zadania
-> **Uwaga!** Nie modyfikuj plików utworzonych przez nas znajdujących się w paczce ROS2.
 
-**Nazwa paczki ROS2 do połączenia z symulacją** - `simulation_endpoint`
+### Symulacja
 
-- **simulation_endpoint** - przygotowany przez nas package służący do połączenia symulacji z ROS2 za pomocą protokołu TCP.
-- **rover_simulation** - stworzona przez nas symulacja łazika marsjańskiego oparta o silnik Unity. Sama w sobie działa poza ROSem, ale pozwala na połączenie z ROS2 za pomocą paczki `simulation_endpoint`, dzięki czemu możliwe jest sterowanie silnikami i odczyt danych z sensorów i kamery.
-- **example_package** - przykładowy package ROS2, zawierający prosty node napisany w C++ z subscriberem, publisherem oraz serwisem.
+#### Wstęp
 
-### Specyfikacja danych
-#### 1. Topic'i `/wheel_XX/set_effort`
+W tej symulacji operujemy dwoma układami współrzędnych: globalnym (nieruchomy, który opisuje całą przestrzeń, w której porusza się kamera) oraz lokalnym kamery (który obraca się wraz z nią). Wyobraź sobie, że kamera siedzi w punkcie (0,0,0) i może obracać się w poziomie i w pionie - w praktyce nie musimy martwić się fizycznymi wymiarami statywu czy samej kamery, czyli tak naprawdę „kamera wisi w miejscu, a silniki zmieniają jej kierunek patrzenia”.
 
-Topic'i te są odpowiedzialne za ustawianie mocy podawanej na poszczególne silniki kół, gdzie:
-- `/wheel_lf/set_effort` - lewe przednie koło
-- `/wheel_lr/set_effort` - lewe tylne koło
-- `/wheel_rf/set_effort` - prawe przednie koło
-- `/wheel_rr/set_effort` - prawe tylne koło
+Silnik 1 odpowiada za obrót w poziomie (jakbyś obracał głowę w lewo i w prawo), a silnik 2 za ruch w pionie (góra-dół). Aby wiedzieć, w jakim kierunku patrzy kamera, korzystamy z enkoderów - to cyfrowe liczniki, które mówią nam, o ile stopni obrócił się dany silnik (zakodowane jako wartość z zakresu [0; 4095]). Symulacja nie zajmuje się mechanicznymi detalami montażu - liczy się tylko matematyka obrotów i przesyłanie odpowiednich sygnałów do silników, tak aby kamera mogła „wycelować” w wskazany punkt w przestrzeni.
 
-Mają one być publikowane przez node'y obsługujące jazdę łazikiem. Ich typ wiadomości to Int8 (std_msgs/msg/Int8).
-Wartością wiadomości jest moc (sygnał PWM) z zakresu -100 do 100. Wartość dodatnia oznacza ruch do przodu względem łazika, a ujemna do tyłu.
+#### System współrzędnych i mapowanie enkoderów
 
-#### 2. Topic'i `/wheel_XX/get_velocity`
+Symulacja implementuje dwu-osiową platformę obrotową z następującym układem współrzędnych:
 
-Topic'i te są odpowiedzialne za odczyt prędkości obrotowej poszczególnych kół, gdzie:
-- `/wheel_lf/get_velocity` - lewe przednie koło
-- `/wheel_lr/get_velocity` - lewe tylne koło
-- `/wheel_rf/get_velocity` - prawe przednie koło
-- `/wheel_rr/get_velocity` - prawe tylne koło
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="assets/ss_start.jpg" alt="Układ współrzędnych symulacji" width="400">
+</div>
 
-Mają być subskrybowane przez node'y realizujące zadanie 2. Ich typ wiadomości to Float32 (std_msgs/msg/Float32).
-Wartością wiadomości jest prędkość obrotowa koła w rad/s. Wartość dodatnia oznacza ruch do przodu względem łazika, a ujemna do tyłu.
+Na powyższym diagramie kamera znajduje się w pozycji początkowej `(0,0,0)`. Pogrubione osie są osiami układu kamery, zaś cieńkie są osiami układu globalnego. W tej pozycji odczyty z enkoderów będą, dla obu silników, równe 0.
 
-#### 3. Topic `/cmd_vel`
+Silnik 1 - Oś pozioma:
+- Wartość = 0 → kamera skierowana w kierunku +X
+- Wartość rosnąca → silnik kręci się zgodnie z ruchem wskazówek zegara
+- Steruje obrotem w okół osi Z globalnego układu współrzędnych (cienka niebieska oś)
 
-Topic ten jest odpowiedzialny za przesyłanie komend sterujących prędkością łazika. Ma być subskrybowany przez node realizujący zadanie 2. Jego typ wiadomości to Twist (geometry_msgs/msg/Twist).
-Wartościami wiadomości są prędkość liniowa w m/s oraz prędkość kątowa w rad/s.
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="assets/Silnik1.gif" alt="Obrót silnikiem 1" width="400">
+</div>
 
-- `linear.x` - prędkość liniowa wzdłuż osi x (do przodu/do tyłu)
-- `linear.y` - wartość nieużywana
-- `linear.z` - wartość nieużywana
-- `angular.x` - wartość nieużywana
-- `angular.y` - wartość nieużywana
-- `angular.z` - prędkość kątowa wokół osi z (obrót w lewo/w prawo)
+Powyższy gif jest wizualizacją sterowania silnikiem 1. Jak widać, obrót odbywa się w okół globalnej (cienkiej) osi pionowej.
 
-Przykładowa wiadomość Twist:
-```yaml
-linear:
-  x: 0.3
-  y: 0.0
-  z: 0.0
-angular:
-  x: 0.0
-  y: 0.0
-  z: 0.08
+Silnik 2 - Oś pionowa:
+- Wartość = 0 → kamera skierowana poziomo, równolegle do ziemi (płaszczyzny XY).
+- Wartość rosnąca → silnik kręci się do góry
+- Steruje obrotem w okół osi Y układy współrzędnych kamery (pogrubiona zielona oś)
+
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="assets/Silnik2.gif" alt="Obrót silnikiem 2" width="400">
+</div>
+
+Powyższy gif jest wizualizacją sterowania silnikiem 2. Jak widać, obrót odbywa się w okół osi Y układu kamery (pogrubionej).
+
+<div style="display: flex; justify-content: center; gap: 10px;">
+  <img src="assets/Enkoder1.gif" alt="Enkoder 1" width="300">
+  <img src="assets/Enkoder2.gif" alt="Enkoder 2" width="300">
+</div>
+
+Powyższe gify, odpowiednio dla silników 1 i 2, obrazują narastanie wartości enkoderów, zaczynając od 0. Tzn. na początku odczyt będzie równy 0 i wraz z czasem będzie rósł.
+
+#### Charakterystyka ruchu
+
+Sygnały sterujące:
+- Wartości dodatnie (1-127): ruch w kierunku rosnących wartości enkodera
+- Wartości ujemne (-128 do -1): ruch w kierunku malejących wartości enkodera
+- Wartość 0: brak ruchu
+
+Właściwości enkoderów:
+- Zakres: 0-4095 (12-bit, cykliczny)
+- Cykliczność: enkodery są cykliczne, po pełnym obrocie do 4095 kolejną wartością będzie 0
+- Rozdzielczość: 4096 pozycji na pełny obrót (360°)
+- Drgania: silnik (co za tym idzie, odczyt enkodera) drga stojąc w miejscu
+- Częstotliwość odczytu: konfigurowalna (domyślnie 20 Hz)
+
+### Dokumentacja API
+
+> **Uwaga!** Nie należy modyfikować implementacji symulacji. Całe twoje rozwiązanie powinno znaleźć się w katalogach `*/solution`, a punktem wejściowym twojego rozwiązania powinna być funkcja `solver()` w pliku `solution.cpp`.
+
+#### Interfejs `Tester`
+
+Interfejs `backend_interface::Tester` zapewnia dostęp do symulacji dwu-osiowej platformy obrotowej. Pozwala na sterowanie silnikami oraz odbieranie celów.
+
+Składniki:
+- `get_motor_1()` - zwraca komponent odpowiadający za komunikację z silnikiem osi poziomej
+- `get_motor_2()` - zwraca komponent odpowiadający za komunikację z silnikiem osi pionowej
+- `get_commands()` - zwraca komponent do odbierania celów
+
+#### Funkcja `solver(tester, preempt)`
+
+Parametr `tester` daje Ci dostęp, zgodnie z powyższym opisem, do komponentów potrzebnych do rozwiązania zadania. Flaga boolowska `preempt` określa, czy włączony jest tryb wywłaszczania celu, czy nie (odpowiednio do zadania 3 i 4).
+
+#### Interfejs `Component`
+
+Wszystkie komponenty implementują interfejs `Component<Send, Receive>`, który udostępnia możliwość pracy w modelu publisher/subscriber:
+
+```cpp
+template <typename Send, typename Receive>
+class Component {
+  public:
+  virtual void add_data_callback(std::function<void(const Receive&)>) = 0;
+  virtual void send_data(const Send&) = 0;
+};
 ```
-W powyższym przykładzie łazik powinien poruszać się do przodu z prędkością 0.3 m/s i jednocześnie obraca się w prawo z prędkością 0.08 rad/s, co powinno skutkować jazdą po łuku w prawo.
 
-#### 4. Topic `/sensor/left` i `/sensor/right`
+W skrócie, za pomocą `send_data()` wysyłamy dane do komponentu, a za pomocą `add_data_callback()` możemy ustawić callback dla komponentu (wyjaśnione później)
 
-Topic'i te są odpowiedzialne za przesyłanie danych z sensorów odległościowych znajdujących się po lewej i prawej stronie łazika.
-Mają być subskrybowane przez node realizujący zadanie 3. Ich typ wiadomości to Float32.
-Wartością wiadomości jest odległość od najbliższej przeszkody w metrach.
-Czujniki te mają maksymalny zasięg wynoszący 3 metry.
-Jeżeli zwracaną wartością jest `infinity`, to znaczy, że nie wykryto żadnej przeszkody.
+> **Uwaga!** Nie oczekujemy, na tym etapie, że rozumiesz co dokładnie oznacza każde słowo w powyższym kodzie. Poniżej, oraz w funkcji `solver()`, znajdziesz przykłady, na podstawie których powinieneś z łatwością mógł przystąpić do implementacji rozwiązania.
 
-Położenie sensorów na łaziku i ich zasięg przedstawia poniższy rysunek
+#### Silniki (`Component<int8_t, uint16_t>`)
 
-![Lokalizacja sensorów](img/zad3_sensor.png)
+Wysyłanie sygnału sterującego:
+```cpp
+auto motor1 = tester->get_motor_1();
+motor1->send_data(100);  // Wartość z zakresu [-128; 127]
+```
 
-#### 5. Serwis `/enable_autonomy` 
-   
-Serwis jest odpowiedzialny za włączenie i wyłączenie autonomicznego przejazdu łazika. Jego typem powinien być SetBool (std_srvs/srv/SetBool).
-Wartość `true` powinna włączyć autonomiczny przejazd, a `false` wyłączyć.
-Serwis powinien być obsługiwany przez node z zadania 3.
+Odbieranie pozycji enkodera:
+```cpp
+motor1->add_data_callback([](const uint16_t& encoder_value) {
+    std::cout << "Pozycja enkodera: " << encoder_value << std::endl;
+});
+```
 
-#### 6. Topic `/camera/image`
+*lub analogicznie:*
 
-Topic ten jest odpowiedzialny za przesyłanie obrazu z kamery umieszczonej na maszcie łazika.
-Musi być subskrybowany przez node realizujący zadanie 4. Jego typ wiadomości to Image (sensor_msgs/msg/Image). Właściwości obrazu:
-- Format: RGBA8
-- Rozdzielczość: 720x480
-- Częstotliwość: 30Hz
+```cpp
+void encoder_callback(const uint16_t& encoder_value) {
+  std::cout << "Pozycja enkodera: " << encoder_value << std::endl;
+}
 
-### Uruchamianie symulatora
-1. Zbuduj paczkę ROS2 `simulation_endpoint`.
-2. Pobierz najnowszy [Release](https://github.com/ScorpioOrganization/scorpio_zadanie_rekrutacyjne_software/releases) symulacji
-3. Rozpakuj pobrany plik
-4. Uruchom `simulation_endpoint` za pomocą komendy w terminalu:
+motor1->add_data_callback(encoder_callback);
+```
+
+W skrócie, callback to funkcja, która jest wywoływana w momencie określonego zdarzenia, z konkretnymi parametrami tego zdarzenia. W tym wypadku enkoder co odczyt wywoła podany callback z wartością odczytu. Powyższe dwie implementacje zachowają się identycznie.
+
+> **Wskazówka!** Jeżeli callback silnika będzie wykonywał się dłużej niż okres aktualizacji enkodera, to program zakończy się błędem. Callbacki powinny być małymi, "tanimi" funkcjami.
+
+Charakterystyka silników:
+- Typ sygnału sterującego: `int8_t` (zakres: -128 do 127)
+- Typ odczytu enkodera: `uint16_t` (zakres: 0 do 4095)
+
+#### Polecenia (`Component<Impossible, Point>`)
+
+Odbieranie poleceń pozycji:
+```cpp
+auto commands = tester->get_commands();
+commands->add_data_callback([](const Point& target) {
+  std::cout << "Cel: x=" << target.x 
+            << " y=" << target.y 
+            << " z=" << target.z << std::endl;
+});
+```
+
+Struktura `Point`: <br>
+Reprezentuje punkt w przestrzeni trójwymiarowej.
+
+```cpp
+struct Point {
+  double x;  // Współrzędna X
+  double y;  // Współrzędna Y  
+  double z;  // Współrzędna Z
+};
+```
+
+**Uwagi:**
+- Polecenia są wysyłane automatycznie przez symulator zgodnie z danymi wejściowymi
+- Typ `Impossible` uniemożliwia wysyłanie danych do komponentu poleceń
+
+### Dokumentacja argumentów CLI
+
+Program symulacji platformy obrotowej obsługuje następujące argumenty wiersza poleceń:
+
+#### Dostępne opcje
+
+| Opcja | Argument | Opis |
+|-------|----------|------|
+| `-h` | - | Wyświetla wiadomość pomocy z listą wszystkich dostępnych opcji |
+| `-f` | FILE | Odczytuje dane wejściowe z podanego pliku zamiast ze standardowego wejścia |
+| `-g` | - | Włącza tryb debugowania (verbose output) |
+| `-p` | - | Włącza tryb wywłaszczania (potrzebny do zadania 3)
+| `-q` | PERIOD | Ustawia okres aktualizacji enkoderów (w sekundach) |
+
+#### Przykłady użycia
+
 ```bash
-ros2 launch simulation_endpoint endpoint.launch.py
+# Uruchomienie z domyślnymi ustawieniami
+./scorpio_recruitment_task
+
+# Uruchomienie z plikiem wejściowym
+./scorpio_recruitment_task -f commands.txt
+
+# Uruchomienie z szybszym odświeżaniem enkoderów
+./scorpio_recruitment_task -q 0.01
 ```
-5. Uruchom symulację za pomocą pliku wykonywalnego `rover_simulation.x86_64` znajdującego się w rozpakowanym folderze symulacji. Po uruchomieniu symulacji powinno pojawić się okno z obrazem z kamery łazika.
+
+#### Wprowadzanie celów
+
+Format pojedyńczego celu jest następujący:
+`<delay> <X> <Y> <Z>`
+
+- `delay` -> określa w jakim odstępie czasowym od poprzedniego celu zostanie zadany ten cel
+- `X`, `Y`, `Z` -> współrzędne celu w przestrzeni 3D
+
+Przykład:
+
+```shell
+5 1 2 3 # (1,2,3) zadany po 5 sekundach działania symulacji
+5 5 5 5 # (5,5,5) zadany po kolejnych 5 sekundach
+10 9 8 7 # (9,8,7) zadany po kolejnych 10 sekundach
+1 2 3 4 # (2,3,4) zadany po kolejnej sekundzie
+```
 
 ## Wskazówki i przydatne linki
--	Zachęcamy do zapoznania się z poradnikiem przedstawiającym podstawy pracy w ROS2: https://www.youtube.com/watch?v=Gg25GfA456o
--	Oficjalny tutorial ROS2 znajdziesz pod linkiem: https://docs.ros.org/en/humble/index.html
--	Do instalacji ROS można wykorzystać instrukcję (należy wybrać wersję ros-humble-desktop): https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html 
-- Do ręcznego wysłania danych na topic w ROS możesz użyć komendy `ros2 topic pub <nazwa_topicu> <typ_danych> <dane>` (po wpisaniu nazwy topicu dobrze jest od razu użyć TAB aby powłoka pomogła w wpisywaniu i zajęła się typem danych i formatem). Możesz to wykorzystać do weryfikacji działania topic'ów z symulacji oraz swoich node'ów.
-- Możesz użyć komendy `ros2 topic echo <nazwa_topicu>` aby wyświetlić dane wysyłane na określony topic.
+
+- [Czym jest enkoder](https://stoltronic.pl/pl/blog/post/43/enkoder-zasada-dzialania-rodzaje-budowa?page_type=post)
 - Zadanie rekrutacyjne można oddać niepełne.
-- Rozwiązane zadanie należy umieścić w **publicznym** repozytorium (np. GitHub) i przesłać linka do tego repozytorium na mail projekt@scorpio.pwr.edu.pl. Ewentualne pytania lub wątpliwości co do treści zadania można kierować na tego samego maila. Zadania przyjmujemy do 06.04.2025 do końca dnia.
-
-## Przydatne ROSowe komendy CLI: 
-- ros2 topic list - zwraca liste wszystkich dostępnych topiców
-- ros2 topic echo <nazwa_topicu> - zwraca dane publikowane na topicu
-- ros2 topic info <nazwa_topicu> -v - zwraca informacje o topicu
-- ros2 topic pub <nazwa_topicu> <typ_message'a> <zawartość_message'a> - publikuje dane na topic
-- ros2 topic hz <nazwa_topicu> - zwraca częstotliwość publikacji na topic
-- ros2 service list - zwraca liste wszystkich dostępnych serwisów
-- ros2 service type <nazwa_serwisu> - zwraca informacje o serwisie
-- ros2 service call <nazwa_serwisu> <typ_serwisu> <zawartość_requestu> - wywołuje serwis i zwraca odpowiedź wywołania
-- ros2 node info <nazwa node'a> - zwraca informacje o node'dzie
-
+- Rozwiązane zadanie należy umieścić w **publicznym** repozytorium (np. GitHub) i przesłać linka do tego repozytorium na mail projekt@scorpio.pwr.edu.pl. Ewentualne pytania lub wątpliwości co do treści zadania można kierować na tego samego maila. Zadania przyjmujemy do 11.11.2025 do końca dnia.
 
 **Jeżeli będziesz miał jakiekolwiek wątpliwości i problemy z zadaniem śmiało skontaktuj się z nami na maila projekt@scorpio.pwr.edu.pl! Powodzenia :)**
