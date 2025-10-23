@@ -19,14 +19,14 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto commands = tester->get_commands();
 
   motor1->add_data_callback([](const uint16_t& data) {
-    std::cout << "Motor 1 data: " << static_cast<int>(data) << "\n";
+    std::cout << "M1: " << static_cast<int>(data) << "\n";
   });
   motor2->add_data_callback([&target](const uint16_t& data) {
-    std::cout << "Motor 2 data: " << static_cast<int>(data) << "\n";
-    printf("Point's x is %lf\n",target.x);
+    std::cout << "M2: " << static_cast<int>(data) << "\n";
+    std::cout << "Point's x is: " << target.x << std::endl;
   });
   commands->add_data_callback([&target](const Point& point) {
-    std::cout << "Command point: (" << point.x << ", " << point.y << ", " << point.z << ")\n";
+    std::cout << "Target:(" << point.x << ", " << point.y << ", " << point.z << ")\n";
     target.x = point.x;
     target.y = point.y;
     target.z = point.z;
