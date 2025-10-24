@@ -11,6 +11,8 @@ typedef struct MyPoint {
 	double x;
 	double y;
 	double z;
+	int angle_vertical;
+	int angle_horizontal;
 	bool exists;
 } MyPoint;
 

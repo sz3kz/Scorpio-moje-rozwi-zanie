@@ -26,10 +26,12 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     target.x = point.x;
     target.y = point.y;
     target.z = point.z;
+    target.angle_horizontal = rad2rotation(m1_angle(target));
+    target.angle_vertical = rad2rotation(m2_angle(target));
     target.exists = 1;
     printf("Needed rotations: %d(m1), %d(m2)\n",
-			rad2rotation(m1_angle(target)),
-			rad2rotation(m2_angle(target)));
+			target.angle_horizontal,
+			target.angle_vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
