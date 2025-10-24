@@ -17,33 +17,46 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
   motor1->add_data_callback([&motor1, &target](const uint16_t& data) {
     std::cout << "M1: " << static_cast<int>(data) << "\n";
-    if (target.exists) {
-    	if (data < 50 ){
-		printf("M1: SEND DATA 100");
-		motor1->send_data(100);
-    	}
-	else if (data > 1000){
-		printf("M1: SEND DATA 0");
-		motor1->send_data(0);
-
-	}
-   }
   });
   motor2->add_data_callback([&target](const uint16_t& data) {
     std::cout << "M2: " << static_cast<int>(data) << "\n";
-	//printf("Target(%d):(%lf,%lf,%lf)",target.exists,target.x,target.y,target.z);
   });
   commands->add_data_callback([&target](const Point& point) {
-    std::cout << "Target:(" << point.x << ", " << point.y << ", " << point.z << ")\n";
+    printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
     target.x = point.x;
     target.y = point.y;
     target.z = point.z;
     target.exists = 1;
-    printf("Motor1 angle: %Lf\n", m1_angle(target) * HUMAN_FRIENDLY_MULTIPLIER);
+    printf("Needed rotations: %Lf(m1), %Lf(m2)\n",
+			m1_angle(target) * HUMAN_FRIENDLY_MULTIPLIER,
+			m2_angle(target) * HUMAN_FRIENDLY_MULTIPLIER);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
   return 0;
+}
+
+double m2_angle(MyPoint target){
+	double x = target.x;
+	double y = target.y;
+	double z = target.z;
+	if (z == 0){
+		puts("z is zero!");
+		return 0;
+	}
+	if (x == 0 && y == 0){
+		puts("target above / below!");
+		if (z > 0)
+			return M_PIl * (0.5);
+		if (z < 0)
+			return (-1) * M_PIl * (0.5);
+	}
+	if (z > 0){
+		puts("Cond 1");
+		return atan( z / sqrt(pow(x,2) + pow(y,2)));
+	}
+	puts("Cond 2");
+	return (-1) * atan( z / sqrt(pow(x,2) + pow(y,2)));
 }
 
 double m1_angle(MyPoint target){
