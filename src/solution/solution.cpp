@@ -27,9 +27,9 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     target.y = point.y;
     target.z = point.z;
     target.exists = 1;
-    printf("Needed rotations: %Lf(m1), %Lf(m2)\n",
-			m1_angle(target) * HUMAN_FRIENDLY_MULTIPLIER,
-			m2_angle(target) * HUMAN_FRIENDLY_MULTIPLIER);
+    printf("Needed rotations: %d(m1), %d(m2)\n",
+			rad2rotation(m1_angle(target)),
+			rad2rotation(m2_angle(target)));
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
