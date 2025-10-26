@@ -19,5 +19,6 @@ typedef struct MyPoint {
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(MyPoint * target);
 double m2_angle(MyPoint * target);
+MyPoint * create_target(Point point);
 
 #endif
