@@ -3,11 +3,12 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <stdlib.h>
 
 #include "../../include/solution/solution.h"
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
-	MyPoint target = {0};
+	MyPoint * target = NULL;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -15,7 +16,11 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto motor2 = tester->get_motor_2();
   auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &target](const uint16_t& data) {
+  motor1->add_data_callback([&motor1, target](const uint16_t& data) {
+    if (target == NULL){
+    	// no target yet
+	return;
+    }
     std::cout << "M1: " << static_cast<int>(data) << "\n";
   });
   motor2->add_data_callback([&target](const uint16_t& data) {
@@ -23,25 +28,27 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   });
   commands->add_data_callback([&target](const Point& point) {
     printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
-    target.x = point.x;
-    target.y = point.y;
-    target.z = point.z;
-    target.angle_horizontal = rad2rotation(m1_angle(target));
-    target.angle_vertical = rad2rotation(m2_angle(target));
-    target.exists = 1;
+    target = (MyPoint *) malloc(sizeof(MyPoint));
+    target->x = point.x;
+    target->y = point.y;
+    target->z = point.z;
+    target->angle_horizontal = rad2rotation(m1_angle(target));
+    target->angle_vertical = rad2rotation(m2_angle(target));
+    target->exists = 1;
     printf("Needed rotations: %d(m1), %d(m2)\n",
-			target.angle_horizontal,
-			target.angle_vertical);
+			target->angle_horizontal,
+			target->angle_vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
+  free(target);
   return 0;
 }
 
-double m2_angle(MyPoint target){
-	double x = target.x;
-	double y = target.y;
-	double z = target.z;
+double m2_angle(MyPoint * target){
+	double x = target->x;
+	double y = target->y;
+	double z = target->z;
 	if (z == 0){
 		puts("z is zero!");
 		return 0;
@@ -61,9 +68,9 @@ double m2_angle(MyPoint target){
 	return (-1) * atan( z / sqrt(pow(x,2) + pow(y,2)));
 }
 
-double m1_angle(MyPoint target){
-	double x = target.x;
-	double y = target.y;
+double m1_angle(MyPoint * target){
+	double x = target->x;
+	double y = target->y;
 	if (y == 0){
 		if (x >= 0)
 			return 0;
