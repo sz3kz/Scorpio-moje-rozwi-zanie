@@ -11,14 +11,17 @@ typedef struct MyPoint {
 	double x;
 	double y;
 	double z;
-	int angle_vertical;
-	int angle_horizontal;
-	bool exists;
 } MyPoint;
+
+typedef struct TargetAngles {
+	int vertical;
+	int horizontal;
+} TargetAngles;
 
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(MyPoint * target);
 double m2_angle(MyPoint * target);
-MyPoint * create_target(Point point);
+MyPoint * create_point(Point point);
+TargetAngles * create_angles(MyPoint * point);
 
 #endif

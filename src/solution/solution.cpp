@@ -28,24 +28,30 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   });
   commands->add_data_callback([&target](const Point& point) {
     printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
-    target = create_target(point);
+    target = create_point(point);
+    TargetAngles * angles = create_angles(target);
     printf("Needed rotations: %d(m1), %d(m2)\n",
-			target->angle_horizontal,
-			target->angle_vertical);
+			angles->horizontal,
+			angles->vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
   free(target);
   return 0;
 }
-MyPoint * create_target(Point point){
+
+TargetAngles * create_angles(MyPoint * point){
+	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
+	ptr->horizontal = m1_angle(point);
+	ptr->vertical = m2_angle(point);
+	return ptr;
+}
+
+MyPoint * create_point(Point point){
     MyPoint * target = (MyPoint *) malloc(sizeof(MyPoint));
     target->x = point.x;
     target->y = point.y;
     target->z = point.z;
-    target->angle_horizontal = 0;
-    target->angle_vertical = 0;
-    target->exists = 0;
     return target;
 }
 
