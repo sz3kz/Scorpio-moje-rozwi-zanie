@@ -29,6 +29,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   commands->add_data_callback([&angles](const Point& point) {
     printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
     angles = create_angles(point);
+    printf("ANGLES:(%4d, %4d)\n", angles->horizontal, angles->vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
@@ -38,8 +39,8 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
 TargetAngles * create_angles(const Point point){
 	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
-	ptr->horizontal = m1_angle(point);
-	ptr->vertical = m2_angle(point);
+	ptr->horizontal = rad2rotation(m1_angle(point));
+	ptr->vertical = rad2rotation(m2_angle(point));
 	return ptr;
 }
 
