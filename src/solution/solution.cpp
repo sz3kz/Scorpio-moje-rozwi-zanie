@@ -31,9 +31,11 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     motor2->send_data(movements->vertical);
   });
   commands->add_data_callback([&angles](const Point& point) {
-    printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
     angles = create_angles(point);
-    printf("ANGLES:(%4d, %4d)\n", angles->horizontal, angles->vertical);
+    printf(	"\nTARGET:(%lf,%lf,%lf)"
+		" --> "
+		"ANGLES:(%4d, %4d)\n", point.x, point.y, point.z,
+		angles->horizontal, angles->vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
