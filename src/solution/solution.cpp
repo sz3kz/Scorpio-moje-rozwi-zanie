@@ -47,15 +47,22 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   return 0;
 }
 
+int get_signed_m2(int m2){
+	int signed_m2;
+	if (m2 > FULL_ROTATION * (0.75) && m2 < FULL_ROTATION)
+		signed_m2 = m2 - FULL_ROTATION;
+	else
+		signed_m2 = m2;
+	return signed_m2;
+}
+
 void update_movement_vertical( Movements * movements, TargetAngles * angles, int m2){
 	if (movements == NULL || angles == NULL)
 		return;
-	int real_m2;
-	if (m2 > FULL_ROTATION * (0.75) && m2 < FULL_ROTATION)
-		real_m2 = m2 - FULL_ROTATION;
-	else
-		real_m2 = m2;
-	if (angles->vertical < real_m2 )
+
+	int signed_m2 = get_signed_m2(m2);
+
+	if (angles->vertical < signed_m2 )
 		movements->vertical = (-1) * abs(movements->vertical);
 	else
 		movements->vertical = abs(movements->vertical);
