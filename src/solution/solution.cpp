@@ -9,6 +9,8 @@
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	TargetAngles * angles = NULL;
+	Movements * movements = create_movements();
+	movements->horizontal=100;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -16,15 +18,17 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto motor2 = tester->get_motor_2();
   auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &angles](const uint16_t& data) {
+  motor1->add_data_callback([&motor1, &angles, movements](const uint16_t& data) {
     if (angles == NULL)
 	return;
     printf("M1: %4d -> %4d\n",data,angles->horizontal);
+    motor1->send_data(movements->horizontal);
   });
-  motor2->add_data_callback([&motor2,&angles](const uint16_t& data) {
+  motor2->add_data_callback([&motor2,&angles,movements](const uint16_t& data) {
     if (angles == NULL)
     	return;
     printf("M2: %4d -> %4d\n",data,angles->vertical);
+    motor2->send_data(movements->vertical);
   });
   commands->add_data_callback([&angles](const Point& point) {
     printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
@@ -34,7 +38,15 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
   free(angles);
+  free(movements);
   return 0;
+}
+
+Movements * create_movements(void){
+	Movements * ptr = (Movements *) malloc(sizeof(Movements));
+	ptr->horizontal = 0;
+	ptr->vertical = 0;
+	return ptr;
 }
 
 TargetAngles * create_angles(const Point point){

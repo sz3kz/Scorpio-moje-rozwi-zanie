@@ -13,9 +13,15 @@ typedef struct TargetAngles {
 	int horizontal;
 } TargetAngles;
 
+typedef struct Movements {
+	int vertical;
+	int horizontal;
+} Movements;
+
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(const Point target);
 double m2_angle(const Point target);
 TargetAngles * create_angles(const Point point);
+Movements * create_movements(void);
 
 #endif
