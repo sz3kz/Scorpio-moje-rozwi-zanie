@@ -8,7 +8,7 @@
 #include "../../include/solution/solution.h"
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
-	TargetAngles * angle = NULL;
+	TargetAngles * angles = NULL;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -16,26 +16,23 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto motor2 = tester->get_motor_2();
   auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &angle](const uint16_t& data) {
-    if (angle == NULL){
-    	// no target yet
+  motor1->add_data_callback([&motor1, &angles](const uint16_t& data) {
+    if (angles == NULL)
 	return;
-    }
-    std::cout << "M1: " << static_cast<int>(data) << "\n";
+    printf("M1: %4d -> %4d\n",data,angles->horizontal);
   });
-  motor2->add_data_callback([&angle](const uint16_t& data) {
-    std::cout << "M2: " << static_cast<int>(data) << "\n";
+  motor2->add_data_callback([&motor2,&angles](const uint16_t& data) {
+    if (angles == NULL)
+    	return;
+    printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
-  commands->add_data_callback([&angle](const Point& point) {
+  commands->add_data_callback([&angles](const Point& point) {
     printf("TARGET:(%lf,%lf,%lf)\n", point.x, point.y, point.z);
-    angle = create_angles(point);
-    printf("Needed rotations: %d(m1), %d(m2)\n",
-			angle->horizontal,
-			angle->vertical);
+    angles = create_angles(point);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
-  free(angle);
+  free(angles);
   return 0;
 }
 
