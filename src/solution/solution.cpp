@@ -48,22 +48,16 @@ double m2_angle(const Point target){
 	double x = target.x;
 	double y = target.y;
 	double z = target.z;
-	if (z == 0){
-		puts("z is zero!");
+	if (z == 0)
 		return 0;
-	}
 	if (x == 0 && y == 0){
-		puts("target above / below!");
 		if (z > 0)
 			return M_PIl * (0.5);
 		if (z < 0)
 			return (-1) * M_PIl * (0.5);
 	}
-	if (z > 0){
-		puts("Cond 1");
+	if (z > 0)
 		return atan( z / sqrt(pow(x,2) + pow(y,2)));
-	}
-	puts("Cond 2");
 	return (-1) * atan( z / sqrt(pow(x,2) + pow(y,2)));
 }
 
