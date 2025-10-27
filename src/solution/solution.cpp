@@ -11,6 +11,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	TargetAngles * angles = NULL;
 	Movements * movements = create_movements();
 	movements->horizontal=100;
+	movements->vertical=100;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -28,6 +29,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   motor2->add_data_callback([&motor2,&angles,movements](const uint16_t& data) {
     if (angles == NULL)
     	return;
+    update_movement_vertical(movements, angles, data);
     motor2->send_data(movements->vertical);
     printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
@@ -43,6 +45,20 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   free(angles);
   free(movements);
   return 0;
+}
+
+void update_movement_vertical( Movements * movements, TargetAngles * angles, int m2){
+	if (movements == NULL || angles == NULL)
+		return;
+	int real_m2;
+	if (m2 > FULL_ROTATION * (0.75) && m2 < FULL_ROTATION)
+		real_m2 = m2 - FULL_ROTATION;
+	else
+		real_m2 = m2;
+	if (angles->vertical < real_m2 )
+		movements->vertical = (-1) * abs(movements->vertical);
+	else
+		movements->vertical = abs(movements->vertical);
 }
 
 void update_movement_horizontal( Movements * movements, TargetAngles * angles, int m1){
@@ -88,9 +104,7 @@ double m2_angle(const Point target){
 		if (z < 0)
 			return (-1) * M_PIl * (0.5);
 	}
-	if (z > 0)
-		return atan( z / sqrt(pow(x,2) + pow(y,2)));
-	return (-1) * atan( z / sqrt(pow(x,2) + pow(y,2)));
+	return atan( z / sqrt(pow(x,2) + pow(y,2)));
 }
 
 double m1_angle(const Point target){
