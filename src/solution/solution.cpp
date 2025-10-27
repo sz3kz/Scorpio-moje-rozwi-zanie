@@ -21,14 +21,15 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   motor1->add_data_callback([&motor1, &angles, movements](const uint16_t& data) {
     if (angles == NULL)
 	return;
-    printf("M1: %4d -> %4d\n",data,angles->horizontal);
+    update_movement_horizontal(movements, angles, data);
     motor1->send_data(movements->horizontal);
+    printf("M1: %4d -> %4d\n",data,angles->horizontal);
   });
   motor2->add_data_callback([&motor2,&angles,movements](const uint16_t& data) {
     if (angles == NULL)
     	return;
-    printf("M2: %4d -> %4d\n",data,angles->vertical);
     motor2->send_data(movements->vertical);
+    printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
   commands->add_data_callback([&angles](const Point& point) {
     angles = create_angles(point);
@@ -42,6 +43,23 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   free(angles);
   free(movements);
   return 0;
+}
+
+void update_movement_horizontal( Movements * movements, TargetAngles * angles, int m1){
+	if (movements == NULL && angles == NULL)
+		return;
+	if ( abs(angles->horizontal - m1) < abs(FULL_ROTATION - angles->horizontal - m1)){
+		if (angles->horizontal - m1 < 0)
+			movements->horizontal = -1 * abs(movements->horizontal);
+		else
+			movements->horizontal = abs(movements->horizontal);
+	}
+	else{
+		if (FULL_ROTATION - angles->horizontal - m1 < 0)
+			movements->horizontal = abs(movements->horizontal);
+		else
+			movements->horizontal = -1 *  abs(movements->horizontal);
+	}
 }
 
 Movements * create_movements(void){
