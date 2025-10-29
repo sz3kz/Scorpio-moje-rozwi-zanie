@@ -2,10 +2,12 @@
 #define MY_SOLUTION
 
 #include <cmath>
+#include <stdbool.h>
 #include "../../include/backend_interface/tester.hpp"
 
 #define HUMAN_FRIENDLY_MULTIPLIER (180.0/M_PIl)
 #define FULL_ROTATION 4096
+#define ANGLE_ACCEPTABLE_DEVIATION 5
 #define rad2rotation(rad) (static_cast<int>(rad * (4096 / (2 * M_PIl))))
 
 typedef struct TargetAngles {
@@ -18,6 +20,7 @@ typedef struct Movements {
 	int horizontal;
 } Movements;
 
+bool check_horizontal_match(TargetAngles * angles, int m1);
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(const Point target);
 double m2_angle(const Point target);

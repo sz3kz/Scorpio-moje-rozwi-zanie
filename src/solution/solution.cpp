@@ -12,6 +12,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	Movements * movements = create_movements();
 	movements->horizontal=100;
 	movements->vertical=100;
+	bool horizontal_match;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -19,11 +20,15 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto motor2 = tester->get_motor_2();
   auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &angles, movements](const uint16_t& data) {
+  motor1->add_data_callback([&motor1, &angles, movements,&horizontal_match](const uint16_t& data) {
     if (angles == NULL)
 	return;
+    if (horizontal_match)
+    	return;
+
     update_movement_horizontal(movements, angles, data);
     motor1->send_data(movements->horizontal);
+    horizontal_match = check_horizontal_match(angles, data);
     printf("M1: %4d -> %4d\n",data,angles->horizontal);
   });
   motor2->add_data_callback([&motor2,&angles,movements](const uint16_t& data) {
@@ -33,18 +38,23 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     motor2->send_data(movements->vertical);
     printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
-  commands->add_data_callback([&angles](const Point& point) {
+  commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
     angles = create_angles(point);
     printf(	"\nTARGET:(%lf,%lf,%lf)"
 		" --> "
 		"ANGLES:(%4d, %4d)\n", point.x, point.y, point.z,
 		angles->horizontal, angles->vertical);
+    horizontal_match = false;
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
   free(angles);
   free(movements);
   return 0;
+}
+
+bool check_horizontal_match(TargetAngles * angles, int m1){
+	return abs(angles->horizontal - m1) < ANGLE_ACCEPTABLE_DEVIATION;
 }
 
 int get_signed_m2(int m2){
