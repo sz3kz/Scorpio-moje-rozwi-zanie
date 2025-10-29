@@ -20,6 +20,7 @@ typedef struct Movements {
 	int horizontal;
 } Movements;
 
+bool check_vertical_match( TargetAngles * angles, int m2);
 bool check_horizontal_match(TargetAngles * angles, int m1);
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(const Point target);
