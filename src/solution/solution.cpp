@@ -10,8 +10,8 @@
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	TargetAngles * angles = NULL;
 	Movements * movements = create_movements();
-	movements->horizontal=100;
-	movements->vertical=100;
+	movements->horizontal = MOTOR_MOVE;
+	movements->vertical = MOTOR_MOVE;
 	bool horizontal_match;
 	bool vertical_match;
 

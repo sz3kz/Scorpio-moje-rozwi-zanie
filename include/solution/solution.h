@@ -8,6 +8,7 @@
 #define HUMAN_FRIENDLY_MULTIPLIER (180.0/M_PIl)
 #define FULL_ROTATION 4096
 #define ANGLE_ACCEPTABLE_DEVIATION 5
+#define MOTOR_MOVE 100
 #define rad2rotation(rad) (static_cast<int>(rad * (4096 / (2 * M_PIl))))
 
 typedef struct TargetAngles {
