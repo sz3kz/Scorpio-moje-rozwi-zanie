@@ -9,7 +9,7 @@
 #define FULL_ROTATION 4096
 #define ANGLE_ACCEPTABLE_DEVIATION 5
 #define MOTOR_MOVE 100
-#define rad2rotation(rad) (static_cast<int>(rad * (4096 / (2 * M_PIl))))
+
 
 typedef struct TargetAngles {
 	int vertical;
@@ -21,6 +21,7 @@ typedef struct Movements {
 	int horizontal;
 } Movements;
 
+int rad2rotation(double rad);
 bool check_vertical_match( TargetAngles * angles, int m2);
 bool check_horizontal_match(TargetAngles * angles, int m1);
 // WARNING: different angle implementations, different handing requred!

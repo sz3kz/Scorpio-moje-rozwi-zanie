@@ -58,6 +58,9 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   return 0;
 }
 
+int rad2rotation(double rad){
+	return (int) (rad * (4096 / (2*M_PIl) ) );
+}
 
 bool check_vertical_match( TargetAngles * angles, int m2){
 	int signed_m2 = get_signed_m2(m2);
