@@ -31,6 +31,6 @@ TargetAngles * create_angles(const Point point);
 Movements * create_movements(void);
 void update_movement_horizontal( Movements * movements, TargetAngles * angles, int m1);
 void update_movement_vertical( Movements * movements, TargetAngles * angles, int m2);
-int get_signed_m2(int m2);
+int get_real_m2(int m2);
 
 #endif

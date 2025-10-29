@@ -63,7 +63,7 @@ int rad2rotation(double rad){
 }
 
 bool check_vertical_match( TargetAngles * angles, int m2){
-	int signed_m2 = get_signed_m2(m2);
+	int signed_m2 = get_real_m2(m2);
 	return abs(angles->vertical - signed_m2) < ANGLE_ACCEPTABLE_DEVIATION;
 }
 
@@ -72,20 +72,18 @@ bool check_horizontal_match(TargetAngles * angles, int m1){
 }
 
 
-int get_signed_m2(int m2){
-	int signed_m2;
+int get_real_m2(int m2){
 	if (m2 > FULL_ROTATION * (0.75) && m2 < FULL_ROTATION)
-		signed_m2 = m2 - FULL_ROTATION;
+		return m2 - FULL_ROTATION;
 	else
-		signed_m2 = m2;
-	return signed_m2;
+		return m2;
 }
 
 void update_movement_vertical( Movements * movements, TargetAngles * angles, int m2){
 	if (movements == NULL || angles == NULL)
 		return;
 
-	int signed_m2 = get_signed_m2(m2);
+	int signed_m2 = get_real_m2(m2);
 
 	if (angles->vertical < signed_m2 )
 		movements->vertical = (-1) * abs(movements->vertical);
