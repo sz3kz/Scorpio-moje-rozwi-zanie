@@ -28,7 +28,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     if (horizontal_match)
     	return;
 
-    update_movement_horizontal(
+    decide_direction_horizontal(
 		    &(movements->horizontal),
 		    angles->horizontal,
 		    current_horizontal_rotation);
@@ -112,7 +112,7 @@ void update_movement_vertical( int * movement, int target_rotation , int current
 		*movement = abs(*movement);
 }
 
-void update_movement_horizontal( int * movement, int target_rotation, int current_rotation){
+void decide_direction_horizontal( int * movement, int target_rotation, int current_rotation){
 	if ( abs(target_rotation - current_rotation) < abs(FULL_ROTATION - target_rotation - current_rotation)){
 		if (target_rotation - current_rotation < 0)
 			*movement = (-1) * abs(*movement);
