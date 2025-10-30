@@ -119,7 +119,7 @@ Movements * create_movements(void){
 
 TargetAngles * create_angles(const Point point){
 	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
-	ptr->horizontal = rad2rotation(m1_angle(point));
+	ptr->horizontal = rad2rotation(m1_angle(point.x, point.y));
 	ptr->vertical = rad2rotation(m2_angle(point.x, point.y, point.z));
 	return ptr;
 }
@@ -136,9 +136,8 @@ double m2_angle(double x, double y, double z){
 	return atan( z / sqrt(pow(x,2) + pow(y,2)));
 }
 
-double m1_angle(const Point target){
-	double x = target.x;
-	double y = target.y;
+double m1_angle(double x, double y){
+	double angle = 0;
 	if (y == 0){
 		if (x >= 0)
 			return 0;
@@ -151,7 +150,6 @@ double m1_angle(const Point target){
 		else //(y < 0)
 			return M_PIl * (0.5);
 	}
-	double angle = 0;
 	if (x > 0 && y < 0){
 		angle += 0;
 		angle += atan((-1*y) / x);
