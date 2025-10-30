@@ -39,7 +39,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	return;
     update_movement_vertical(movements, angles, data);
     motor2->send_data(movements->vertical);
-    vertical_match = check_vertical_match(angles, data);
+    vertical_match = check_vertical_match(angles->vertical, data);
     printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
   commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
@@ -62,9 +62,10 @@ int rad2rotation(double rad){
 	return (int) (rad * (4096 / (2*M_PIl) ) );
 }
 
-bool check_vertical_match( TargetAngles * angles, int m2){
-	int signed_m2 = get_real_m2(m2);
-	return abs(angles->vertical - signed_m2) < ANGLE_ACCEPTABLE_DEVIATION;
+bool check_vertical_match( int target_rotation, int current_rotation){
+	current_rotation = get_real_m2(current_rotation);
+	return abs(target_rotation - current_rotation)
+		< ANGLE_ACCEPTABLE_DEVIATION;
 }
 
 bool check_horizontal_match(int target_rotation, int current_rotation){
