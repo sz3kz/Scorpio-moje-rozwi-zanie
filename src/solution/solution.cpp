@@ -27,7 +27,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     if (horizontal_match)
     	return;
 
-    update_movement_horizontal(movements, angles, data);
+    update_movement_horizontal(&(movements->horizontal), angles->horizontal, data);
     motor1->send_data(movements->horizontal);
     horizontal_match = check_horizontal_match(angles->horizontal, data);
     printf("M1: %4d -> %4d\n",data,angles->horizontal);
@@ -93,20 +93,18 @@ void update_movement_vertical( Movements * movements, TargetAngles * angles, int
 		movements->vertical = abs(movements->vertical);
 }
 
-void update_movement_horizontal( Movements * movements, TargetAngles * angles, int m1){
-	if (movements == NULL && angles == NULL)
-		return;
-	if ( abs(angles->horizontal - m1) < abs(FULL_ROTATION - angles->horizontal - m1)){
-		if (angles->horizontal - m1 < 0)
-			movements->horizontal = -1 * abs(movements->horizontal);
+void update_movement_horizontal( int * movement, int target_rotation, int current_rotation){
+	if ( abs(target_rotation - current_rotation) < abs(FULL_ROTATION - target_rotation - current_rotation)){
+		if (target_rotation - current_rotation < 0)
+			*movement = (-1) * abs(*movement);
 		else
-			movements->horizontal = abs(movements->horizontal);
+			*movement = abs(*movement);
 	}
 	else{
-		if (FULL_ROTATION - angles->horizontal - m1 < 0)
-			movements->horizontal = abs(movements->horizontal);
+		if (FULL_ROTATION - target_rotation - current_rotation < 0)
+			*movement = abs(*movement);
 		else
-			movements->horizontal = -1 *  abs(movements->horizontal);
+			*movement = (-1) * abs(*movement);
 	}
 }
 
