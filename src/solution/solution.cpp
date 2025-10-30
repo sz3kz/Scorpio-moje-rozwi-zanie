@@ -21,10 +21,8 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
   motor1->add_data_callback([&motor1, &target, movements](const uint16_t & data) {
     int current_horizontal_rotation = data;
-    if (target == NULL)
+    if (target == NULL || target->is_horizontal_reached)
 	return;
-    if (target->is_horizontal_reached)
-    	return;
 
     decide_direction_horizontal(
 		    &(movements->horizontal),
@@ -41,10 +39,9 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
   motor2->add_data_callback([&motor2,&target,movements](const uint16_t& data) {
     int current_vertical_rotation = calculate_true_vertical_rotation(data);
-    if (target == NULL)
+    if (target == NULL || target->is_vertical_reached)
     	return;
-    if (target->is_vertical_reached)
-	return;
+
     decide_direction_vertical(
 		    &(movements->vertical),
 		    target->vertical,
