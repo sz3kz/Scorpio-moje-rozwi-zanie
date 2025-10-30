@@ -37,7 +37,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     	return;
     if (vertical_match)
 	return;
-    update_movement_vertical(movements, angles, data);
+    update_movement_vertical(&(movements->vertical), angles->vertical, data);
     motor2->send_data(movements->vertical);
     vertical_match = check_vertical_match(angles->vertical, data);
     printf("M2: %4d -> %4d\n",data,angles->vertical);
@@ -81,16 +81,12 @@ int get_real_m2(int m2){
 		return m2;
 }
 
-void update_movement_vertical( Movements * movements, TargetAngles * angles, int m2){
-	if (movements == NULL || angles == NULL)
-		return;
-
-	int signed_m2 = get_real_m2(m2);
-
-	if (angles->vertical < signed_m2 )
-		movements->vertical = (-1) * abs(movements->vertical);
+void update_movement_vertical( int * movement, int target_rotation , int current_rotation){
+	current_rotation = get_real_m2(current_rotation);
+	if (target_rotation < current_rotation)
+		*movement = (-1) * abs(*movement);
 	else
-		movements->vertical = abs(movements->vertical);
+		*movement = abs(*movement);
 }
 
 void update_movement_horizontal( int * movement, int target_rotation, int current_rotation){
