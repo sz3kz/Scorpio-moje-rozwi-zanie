@@ -30,6 +30,6 @@ TargetAngles * create_angles(double x, double y, double z);
 Movements * create_movements(void);
 void update_movement_horizontal( int * movement, int target_rotation, int current_rotation);
 void update_movement_vertical( int * movement, int target_rotation , int current_rotation);
-int get_real_m2(int m2);
+int calculate_true_vertical_rotation(int encoder_vertical_rotation );
 
 #endif
