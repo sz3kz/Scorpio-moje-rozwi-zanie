@@ -43,7 +43,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     printf("M2: %4d -> %4d\n",data,angles->vertical);
   });
   commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
-    angles = create_angles(point);
+    angles = create_angles(point.x, point.y, point.z);
     printf(	"\nTARGET:(%lf,%lf,%lf)"
 		" --> "
 		"ANGLES:(%4d, %4d)\n", point.x, point.y, point.z,
@@ -111,10 +111,10 @@ Movements * create_movements(void){
 	return ptr;
 }
 
-TargetAngles * create_angles(const Point point){
+TargetAngles * create_angles(double x, double y, double z){
 	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
-	ptr->horizontal = rad2rotation(m1_angle(point.x, point.y));
-	ptr->vertical = rad2rotation(m2_angle(point.x, point.y, point.z));
+	ptr->horizontal = rad2rotation(m1_angle(x, y));
+	ptr->vertical = rad2rotation(m2_angle(x,y,z));
 	return ptr;
 }
 
