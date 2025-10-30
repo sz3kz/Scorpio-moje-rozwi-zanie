@@ -34,14 +34,15 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     printf("M1: %4d -> %4d\n",current_horizontal_rotation,angles->horizontal);
   });
   motor2->add_data_callback([&motor2,&angles,movements, &vertical_match](const uint16_t& data) {
+    int encoded_current_vertical_rotation = data;
     if (angles == NULL)
     	return;
     if (vertical_match)
 	return;
-    update_movement_vertical(&(movements->vertical), angles->vertical, data);
+    update_movement_vertical(&(movements->vertical), angles->vertical, encoded_current_vertical_rotation);
     motor2->send_data(movements->vertical);
-    vertical_match = is_vertical_reached(angles->vertical, data);
-    printf("M2: %4d -> %4d\n",data,angles->vertical);
+    vertical_match = is_vertical_reached(angles->vertical, encoded_current_vertical_rotation);
+    printf("M2: %4d -> %4d\n",encoded_current_vertical_rotation,angles->vertical);
   });
   commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
     angles = create_angles(point.x, point.y, point.z);
