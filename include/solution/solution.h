@@ -10,10 +10,12 @@
 #define MOTOR_MOVE 100
 
 
-typedef struct TargetAngles {
+typedef struct Target {
 	int vertical;
 	int horizontal;
-} TargetAngles;
+	bool is_vertical_reached;
+	bool is_horizontal_reached;
+} Target;
 
 typedef struct Movements {
 	int vertical;
@@ -25,7 +27,7 @@ double calculate_angle_horizontal(double x, double y);
 double calculate_angle_vertical(double x, double y, double z);
 int calculate_true_vertical_rotation(int encoder_vertical_rotation );
 
-TargetAngles * create_angles(double x, double y, double z);
+Target * create_target(double x, double y, double z);
 
 Movements * create_movements(void);
 void decide_direction_vertical( int * movement, int target_rotation , int current_rotation);

@@ -8,12 +8,10 @@
 #include "../../include/solution/solution.h"
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
-	TargetAngles * angles = NULL;
+	Target * target = NULL;
 	Movements * movements = create_movements();
 	movements->horizontal = MOTOR_MOVE;
 	movements->vertical = MOTOR_MOVE;
-	bool horizontal_match;
-	bool vertical_match;
 
   std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
@@ -21,46 +19,46 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   auto motor2 = tester->get_motor_2();
   auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &angles, movements,&horizontal_match](const uint16_t & data) {
+  motor1->add_data_callback([&motor1, &target, movements](const uint16_t & data) {
     int current_horizontal_rotation = data;
-    if (angles == NULL)
+    if (target == NULL)
 	return;
-    if (horizontal_match)
+    if (target->is_horizontal_reached)
     	return;
 
     decide_direction_horizontal(
 		    &(movements->horizontal),
-		    angles->horizontal,
+		    target->horizontal,
 		    current_horizontal_rotation);
     motor1->send_data( movements->horizontal );
-    horizontal_match = is_horizontal_reached(
-		    angles->horizontal,
+    target->is_horizontal_reached = is_horizontal_reached(
+		    target->horizontal,
 		    data);
     printf("M1: %4d -> %4d\n",
 		    current_horizontal_rotation,
-		    angles->horizontal);
+		    target->horizontal);
   });
 
-  motor2->add_data_callback([&motor2,&angles,movements, &vertical_match](const uint16_t& data) {
+  motor2->add_data_callback([&motor2,&target,movements](const uint16_t& data) {
     int current_vertical_rotation = calculate_true_vertical_rotation(data);
-    if (angles == NULL)
+    if (target == NULL)
     	return;
-    if (vertical_match)
+    if (target->is_vertical_reached)
 	return;
     decide_direction_vertical(
 		    &(movements->vertical),
-		    angles->vertical,
+		    target->vertical,
 		    current_vertical_rotation);
     motor2->send_data( movements->vertical );
-    vertical_match = is_vertical_reached(
-		    angles->vertical,
+    target->is_vertical_reached = is_vertical_reached(
+		    target->vertical,
 		    current_vertical_rotation);
     printf("M2: %4d -> %4d\n",
 		    current_vertical_rotation,
-		    angles->vertical);
+		    target->vertical);
   });
-  commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
-    angles = create_angles(
+  commands->add_data_callback([&target](const Point& point) {
+    target = create_target(
 		    point.x,
 		    point.y,
 		    point.z);
@@ -70,14 +68,12 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    point.x,
 		    point.y,
 		    point.z,
-		    angles->horizontal,
-		    angles->vertical);
-    horizontal_match = false;
-    vertical_match = false;
+		    target->horizontal,
+		    target->vertical);
   });
 
   std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
-  free(angles);
+  free(target);
   free(movements);
   return 0;
 }
@@ -134,10 +130,12 @@ Movements * create_movements(void){
 	return ptr;
 }
 
-TargetAngles * create_angles(double x, double y, double z){
-	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
+Target * create_target(double x, double y, double z){
+	Target * ptr = (Target *) malloc(sizeof(Target));
 	ptr->horizontal = angle2rotation(calculate_angle_horizontal(x, y));
 	ptr->vertical = angle2rotation(calculate_angle_vertical(x,y,z));
+	ptr->is_horizontal_reached = false;
+	ptr->is_vertical_reached = false;
 	return ptr;
 }
 
