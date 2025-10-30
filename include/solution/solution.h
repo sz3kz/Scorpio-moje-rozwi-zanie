@@ -8,6 +8,11 @@
 #define FULL_ROTATION 4096
 #define ANGLE_ACCEPTABLE_DEVIATION 5
 #define MOTOR_MOVE 100
+#define QUADRANT_1ST 0
+#define QUADRANT_2ND M_PIl * (0.5)
+#define QUADRANT_3RD M_PIl
+#define QUADRANT_4TH M_PIl * (1.5)
+
 
 
 typedef struct Target {

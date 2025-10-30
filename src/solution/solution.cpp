@@ -152,37 +152,32 @@ double calculate_angle_vertical(double x, double y, double z){
 }
 
 double calculate_angle_horizontal(double x, double y){
-	double angle = 0;
 	if (y == 0){
 		if (x >= 0)
-			return 0;
-		else //(x < 0)
-			return M_PIl;
+			return QUADRANT_1ST;
+		else
+			return QUADRANT_3RD;
 	}
+
 	if (x == 0){
 		if (y > 0) 
-			return M_PIl * (1.5);
-		else //(y < 0)
-			return M_PIl * (0.5);
+			return QUADRANT_4TH;
+		else
+			return QUADRANT_2ND;
 	}
-	if (x > 0 && y < 0){
-		angle += 0;
-		angle += atan((-1*y) / x);
-		return angle;
-	}
-	if (x < 0 && y < 0){
-		angle += M_PIl * (0.5);
-		angle += atan((-1*x) / (-1*y));
-		return angle;
-	}
-	if (x < 0 && y > 0){
-		angle += M_PIl;
-		angle += atan(y / (-1*x));
-		return angle;
-	}
-	else if (x > 0 && y > 0){
-		angle += M_PIl * (1.5);
-		angle += atan(x / y);
-		return angle;
-	}
+
+	if (x > 0 && y < 0)
+		return QUADRANT_1ST + atan((-1*y) / x);
+
+	if (x < 0 && y < 0)
+		return QUADRANT_2ND + atan((-1*x) / (-1*y));
+
+	if (x < 0 && y > 0)
+		return QUADRANT_3RD + atan(y / (-1*x));
+
+	if (x > 0 && y > 0)
+		return QUADRANT_4TH + atan(x / y);
+
+	// no value should ever fall through every if statement
+	puts("SOMETHING WENT TERRIBLY WRONG!");
 }
