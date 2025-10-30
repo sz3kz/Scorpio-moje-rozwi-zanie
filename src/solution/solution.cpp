@@ -31,7 +31,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     motor1->send_data( movements->horizontal );
     target->is_horizontal_reached = is_horizontal_reached(
 		    target->horizontal,
-		    data);
+		    current_horizontal_rotation);
     printf("M1: %4d -> %4d\n",
 		    current_horizontal_rotation,
 		    target->horizontal);
