@@ -29,7 +29,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
     update_movement_horizontal(movements, angles, data);
     motor1->send_data(movements->horizontal);
-    horizontal_match = check_horizontal_match(angles, data);
+    horizontal_match = check_horizontal_match(angles->horizontal, data);
     printf("M1: %4d -> %4d\n",data,angles->horizontal);
   });
   motor2->add_data_callback([&motor2,&angles,movements, &vertical_match](const uint16_t& data) {
@@ -67,8 +67,9 @@ bool check_vertical_match( TargetAngles * angles, int m2){
 	return abs(angles->vertical - signed_m2) < ANGLE_ACCEPTABLE_DEVIATION;
 }
 
-bool check_horizontal_match(TargetAngles * angles, int m1){
-	return abs(angles->horizontal - m1) < ANGLE_ACCEPTABLE_DEVIATION;
+bool check_horizontal_match(int target_rotation, int current_rotation){
+	return abs(target_rotation - current_rotation)
+		< ANGLE_ACCEPTABLE_DEVIATION;
 }
 
 
