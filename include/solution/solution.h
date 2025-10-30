@@ -25,7 +25,7 @@ bool is_vertical_reached( int target_rotation, int current_rotation);
 bool is_horizontal_reached(int target_rotation, int current_rotation);
 // WARNING: different angle implementations, different handing requred!
 double calculate_angle_horizontal(double x, double y);
-double m2_angle(double x, double y, double z);
+double calculate_angle_vertical(double x, double y, double z);
 TargetAngles * create_angles(double x, double y, double z);
 Movements * create_movements(void);
 void update_movement_horizontal( int * movement, int target_rotation, int current_rotation);

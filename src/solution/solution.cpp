@@ -137,11 +137,11 @@ Movements * create_movements(void){
 TargetAngles * create_angles(double x, double y, double z){
 	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
 	ptr->horizontal = angle2rotation(calculate_angle_horizontal(x, y));
-	ptr->vertical = angle2rotation(m2_angle(x,y,z));
+	ptr->vertical = angle2rotation(calculate_angle_vertical(x,y,z));
 	return ptr;
 }
 
-double m2_angle(double x, double y, double z){
+double calculate_angle_vertical(double x, double y, double z){
 	if (z == 0)
 		return 0;
 	if (x == 0 && y == 0){
