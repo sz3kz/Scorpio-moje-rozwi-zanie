@@ -26,7 +26,7 @@ bool check_vertical_match( int target_rotation, int current_rotation);
 bool check_horizontal_match(int target_rotation, int current_rotation);
 // WARNING: different angle implementations, different handing requred!
 double m1_angle(const Point target);
-double m2_angle(const Point target);
+double m2_angle(double x, double y, double z);
 TargetAngles * create_angles(const Point point);
 Movements * create_movements(void);
 void update_movement_horizontal( Movements * movements, TargetAngles * angles, int m1);
