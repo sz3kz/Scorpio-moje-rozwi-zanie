@@ -82,7 +82,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   return 0;
 }
 
-int rad2rotation(double rad){
+int angle2rotation(double rad){
 	return (int) (rad * (4096 / (2*M_PIl) ) );
 }
 
@@ -136,8 +136,8 @@ Movements * create_movements(void){
 
 TargetAngles * create_angles(double x, double y, double z){
 	TargetAngles * ptr = (TargetAngles *) malloc(sizeof(TargetAngles));
-	ptr->horizontal = rad2rotation(m1_angle(x, y));
-	ptr->vertical = rad2rotation(m2_angle(x,y,z));
+	ptr->horizontal = angle2rotation(m1_angle(x, y));
+	ptr->vertical = angle2rotation(m2_angle(x,y,z));
 	return ptr;
 }
 

@@ -20,7 +20,7 @@ typedef struct Movements {
 	int horizontal;
 } Movements;
 
-int rad2rotation(double rad);
+int angle2rotation(double rad);
 bool is_vertical_reached( int target_rotation, int current_rotation);
 bool is_horizontal_reached(int target_rotation, int current_rotation);
 // WARNING: different angle implementations, different handing requred!
