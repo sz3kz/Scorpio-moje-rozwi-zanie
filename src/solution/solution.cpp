@@ -28,10 +28,17 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     if (horizontal_match)
     	return;
 
-    update_movement_horizontal(&(movements->horizontal), angles->horizontal, current_horizontal_rotation);
-    motor1->send_data(movements->horizontal);
-    horizontal_match = is_horizontal_reached(angles->horizontal, data);
-    printf("M1: %4d -> %4d\n",current_horizontal_rotation,angles->horizontal);
+    update_movement_horizontal(
+		    &(movements->horizontal),
+		    angles->horizontal,
+		    current_horizontal_rotation);
+    motor1->send_data( movements->horizontal );
+    horizontal_match = is_horizontal_reached(
+		    angles->horizontal,
+		    data);
+    printf("M1: %4d -> %4d\n",
+		    current_horizontal_rotation,
+		    angles->horizontal);
   });
   motor2->add_data_callback([&motor2,&angles,movements, &vertical_match](const uint16_t& data) {
     int encoded_current_vertical_rotation = data;
@@ -39,17 +46,31 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     	return;
     if (vertical_match)
 	return;
-    update_movement_vertical(&(movements->vertical), angles->vertical, encoded_current_vertical_rotation);
-    motor2->send_data(movements->vertical);
-    vertical_match = is_vertical_reached(angles->vertical, encoded_current_vertical_rotation);
-    printf("M2: %4d -> %4d\n",encoded_current_vertical_rotation,angles->vertical);
+    update_movement_vertical(
+		    &(movements->vertical),
+		    angles->vertical,
+		    encoded_current_vertical_rotation);
+    motor2->send_data( movements->vertical );
+    vertical_match = is_vertical_reached(
+		    angles->vertical,
+		    encoded_current_vertical_rotation);
+    printf("M2: %4d -> %4d\n",
+		    encoded_current_vertical_rotation,
+		    angles->vertical);
   });
   commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
-    angles = create_angles(point.x, point.y, point.z);
-    printf(	"\nTARGET:(%lf,%lf,%lf)"
-		" --> "
-		"ANGLES:(%4d, %4d)\n", point.x, point.y, point.z,
-		angles->horizontal, angles->vertical);
+    angles = create_angles(
+		    point.x,
+		    point.y,
+		    point.z);
+    printf("\n");
+    printf(
+		    "TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
+		    point.x,
+		    point.y,
+		    point.z,
+		    angles->horizontal,
+		    angles->vertical);
     horizontal_match = false;
     vertical_match = false;
   });
