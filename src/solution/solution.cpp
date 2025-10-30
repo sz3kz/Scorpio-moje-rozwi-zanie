@@ -40,8 +40,9 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    current_horizontal_rotation,
 		    angles->horizontal);
   });
+
   motor2->add_data_callback([&motor2,&angles,movements, &vertical_match](const uint16_t& data) {
-    int encoded_current_vertical_rotation = data;
+    int current_vertical_rotation = calculate_true_vertical_rotation(data);
     if (angles == NULL)
     	return;
     if (vertical_match)
@@ -49,13 +50,13 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     update_movement_vertical(
 		    &(movements->vertical),
 		    angles->vertical,
-		    encoded_current_vertical_rotation);
+		    current_vertical_rotation);
     motor2->send_data( movements->vertical );
     vertical_match = is_vertical_reached(
 		    angles->vertical,
-		    encoded_current_vertical_rotation);
+		    current_vertical_rotation);
     printf("M2: %4d -> %4d\n",
-		    encoded_current_vertical_rotation,
+		    current_vertical_rotation,
 		    angles->vertical);
   });
   commands->add_data_callback([&angles, &horizontal_match, &vertical_match](const Point& point) {
@@ -86,7 +87,6 @@ int rad2rotation(double rad){
 }
 
 bool is_vertical_reached( int target_rotation, int current_rotation){
-	current_rotation = calculate_true_vertical_rotation(current_rotation);
 	return abs(target_rotation - current_rotation)
 		< ANGLE_ACCEPTABLE_DEVIATION;
 }
@@ -106,7 +106,6 @@ int calculate_true_vertical_rotation(int encoder_vertical_rotation ){
 }
 
 void update_movement_vertical( int * movement, int target_rotation , int current_rotation){
-	current_rotation = calculate_true_vertical_rotation(current_rotation);
 	if (target_rotation < current_rotation)
 		*movement = (-1) * abs(*movement);
 	else
