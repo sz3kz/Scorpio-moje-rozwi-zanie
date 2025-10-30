@@ -29,7 +29,7 @@ double calculate_angle_vertical(double x, double y, double z);
 TargetAngles * create_angles(double x, double y, double z);
 Movements * create_movements(void);
 void decide_direction_horizontal( int * movement, int target_rotation, int current_rotation);
-void update_movement_vertical( int * movement, int target_rotation , int current_rotation);
+void decide_direction_vertical( int * movement, int target_rotation , int current_rotation);
 int calculate_true_vertical_rotation(int encoder_vertical_rotation );
 
 #endif

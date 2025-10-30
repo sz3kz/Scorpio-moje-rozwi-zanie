@@ -47,7 +47,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     	return;
     if (vertical_match)
 	return;
-    update_movement_vertical(
+    decide_direction_vertical(
 		    &(movements->vertical),
 		    angles->vertical,
 		    current_vertical_rotation);
@@ -105,7 +105,7 @@ int calculate_true_vertical_rotation(int encoder_vertical_rotation ){
 		return encoder_vertical_rotation ;
 }
 
-void update_movement_vertical( int * movement, int target_rotation , int current_rotation){
+void decide_direction_vertical( int * movement, int target_rotation , int current_rotation){
 	if (target_rotation < current_rotation)
 		*movement = (-1) * abs(*movement);
 	else
