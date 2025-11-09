@@ -81,7 +81,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 }
 
 int angle2rotation(double rad){
-	return (int) (rad * (4096 / (2*M_PIl) ) );
+	return (int) (rad * (FULL_ROTATION / (2*M_PIl) ) );
 }
 
 bool is_vertical_reached( int target_rotation, int current_rotation){
