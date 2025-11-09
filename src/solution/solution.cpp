@@ -27,6 +27,8 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 			return;
 		if (target->is_horizontal_reached && target->is_vertical_reached){
 			puts("TARGET REACHED!");
+			destroy_target(target);
+			target = NULL;
 			return;
 		}
 
@@ -79,7 +81,6 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    target->vertical);
   	});
   	std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
-  	free(target);
   	free(movements);
   	return 0;
 }
@@ -143,6 +144,10 @@ Target * create_target(double x, double y, double z){
 	ptr->is_horizontal_reached = false;
 	ptr->is_vertical_reached = false;
 	return ptr;
+}
+
+void destroy_target(Target * target){
+	free(target);
 }
 
 double calculate_angle_vertical(double x, double y, double z){
