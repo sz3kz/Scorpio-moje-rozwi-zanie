@@ -81,7 +81,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    target->vertical);
   	});
   	std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
-  	free(movements);
+	destroy_movements(movements);
   	return 0;
 }
 
@@ -135,6 +135,10 @@ Movements * create_movements(void){
 	ptr->horizontal = 0;
 	ptr->vertical = 0;
 	return ptr;
+}
+
+void destroy_movements(Movements * movements){
+	free(movements);
 }
 
 Target * create_target(double x, double y, double z){

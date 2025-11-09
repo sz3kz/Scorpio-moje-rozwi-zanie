@@ -36,6 +36,7 @@ Target * create_target(double x, double y, double z);
 void destroy_target(Target * target);
 
 Movements * create_movements(void);
+void destroy_movements(Movements * movements);
 void decide_direction_vertical( int * movement, int target_rotation , int current_rotation);
 void decide_direction_horizontal( int * movement, int target_rotation, int current_rotation);
 
