@@ -23,8 +23,12 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 			[&motor1, &target, movements]
 			(const uint16_t & data) {
     		int current_horizontal_rotation = data;
-    		if (target == NULL || target->is_horizontal_reached)
+		if (target == NULL)
 			return;
+		if (target->is_horizontal_reached && target->is_vertical_reached){
+			puts("TARGET REACHED!");
+			return;
+		}
 
     		decide_direction_horizontal(
 				    &(movements->horizontal),
