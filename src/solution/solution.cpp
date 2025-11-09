@@ -13,66 +13,71 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	movements->horizontal = MOTOR_MOVE;
 	movements->vertical = MOTOR_MOVE;
 
-  std::cout << (preempt ? "Preempt" : "Queue") << '\n';
+  	std::cout << (preempt ? "Preempt" : "Queue") << '\n';
 
-  auto motor1 = tester->get_motor_1();
-  auto motor2 = tester->get_motor_2();
-  auto commands = tester->get_commands();
+  	auto motor1 = tester->get_motor_1();
+  	auto motor2 = tester->get_motor_2();
+  	auto commands = tester->get_commands();
 
-  motor1->add_data_callback([&motor1, &target, movements](const uint16_t & data) {
-    int current_horizontal_rotation = data;
-    if (target == NULL || target->is_horizontal_reached)
-	return;
+  	motor1->add_data_callback(
+			[&motor1, &target, movements]
+			(const uint16_t & data) {
+    		int current_horizontal_rotation = data;
+    		if (target == NULL || target->is_horizontal_reached)
+			return;
 
-    decide_direction_horizontal(
-		    &(movements->horizontal),
-		    target->horizontal,
-		    current_horizontal_rotation);
-    motor1->send_data( movements->horizontal );
-    target->is_horizontal_reached = is_horizontal_reached(
-		    target->horizontal,
-		    current_horizontal_rotation);
-    printf("M1: %4d -> %4d\n",
-		    current_horizontal_rotation,
-		    target->horizontal);
-  });
+    		decide_direction_horizontal(
+				    &(movements->horizontal),
+				    target->horizontal,
+				    current_horizontal_rotation);
+		motor1->send_data( movements->horizontal );
+		target->is_horizontal_reached = is_horizontal_reached(
+				    target->horizontal,
+				    current_horizontal_rotation);
+		printf("M1: %4d -> %4d\n",
+				    current_horizontal_rotation,
+				    target->horizontal);
+  	});
 
-  motor2->add_data_callback([&motor2,&target,movements](const uint16_t& data) {
-    int current_vertical_rotation = calculate_true_vertical_rotation(data);
-    if (target == NULL || target->is_vertical_reached)
-    	return;
+  	motor2->add_data_callback(
+			[&motor2,&target,movements]
+			(const uint16_t& data) {
+    		int current_vertical_rotation = calculate_true_vertical_rotation(data);
+		if (target == NULL || target->is_vertical_reached)
+			return;
 
-    decide_direction_vertical(
+	    	decide_direction_vertical(
 		    &(movements->vertical),
 		    target->vertical,
 		    current_vertical_rotation);
-    motor2->send_data( movements->vertical );
-    target->is_vertical_reached = is_vertical_reached(
+    		motor2->send_data( movements->vertical );
+    		target->is_vertical_reached = is_vertical_reached(
 		    target->vertical,
 		    current_vertical_rotation);
-    printf("M2: %4d -> %4d\n",
+    		printf("M2: %4d -> %4d\n",
 		    current_vertical_rotation,
 		    target->vertical);
-  });
-  commands->add_data_callback([&target](const Point& point) {
-    target = create_target(
+  	});
+  	commands->add_data_callback(
+			[&target]
+			(const Point& point) {
+    		target = create_target(
 		    point.x,
 		    point.y,
 		    point.z);
-    printf("\n");
-    printf(
+    		printf("\n");
+    		printf(
 		    "TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
 		    point.x,
 		    point.y,
 		    point.z,
 		    target->horizontal,
 		    target->vertical);
-  });
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
-  free(target);
-  free(movements);
-  return 0;
+  	});
+  	std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
+  	free(target);
+  	free(movements);
+  	return 0;
 }
 
 int angle2rotation(double rad){
