@@ -80,7 +80,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    target->horizontal,
 		    target->vertical);
   	});
-  	std::this_thread::sleep_for(std::chrono::milliseconds(3600 * 1000));
+	std::this_thread::sleep_for(std::chrono::hours(1));
 	destroy_movements(movements);
   	return 0;
 }
