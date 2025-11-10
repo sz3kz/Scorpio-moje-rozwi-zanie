@@ -118,8 +118,8 @@ bool is_vertical_reached( int target_rotation, int current_rotation){
 }
 
 bool is_horizontal_reached(int target_rotation, int current_rotation){
-	return abs(target_rotation - current_rotation)
-		< ANGLE_ACCEPTABLE_DEVIATION;
+	return abs(target_rotation - current_rotation) < ANGLE_ACCEPTABLE_DEVIATION ||
+		abs(target_rotation - current_rotation - FULL_ROTATION) < ANGLE_ACCEPTABLE_DEVIATION;
 }
 
 
