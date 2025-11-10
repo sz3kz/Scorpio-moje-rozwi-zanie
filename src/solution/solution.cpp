@@ -63,9 +63,9 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		if (target == NULL)
 			return;
 
-    		printf("M2: %4d -> %4d\n",
-		    current_vertical_rotation,
-		    target->vertical);
+		printf("M2: %4d -> %4d\n",
+			current_vertical_rotation,
+			target->vertical);
 
 		if (target->is_vertical_reached){
 			motor2->send_data(MOTOR_STOP);
@@ -88,12 +88,10 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    point.x,
 		    point.y,
 		    point.z);
-		printf("Target_count = %d\n",target_count);
-		if (preempt && target_count != 0){
+		if (preempt && target_count == 1){
 			targets.pop();
 			target_count--;
 		}
-		printf("Target_count = %d\n",target_count);
 		targets.push(target);
 		target_count++;
     		printf("\n");
