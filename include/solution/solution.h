@@ -14,8 +14,6 @@
 #define QUADRANT_3RD M_PIl
 #define QUADRANT_4TH M_PIl * (1.5)
 
-
-
 typedef struct Target {
 	int vertical;
 	int horizontal;
@@ -28,16 +26,19 @@ typedef struct Movements {
 	int horizontal;
 } Movements;
 
+
 int angle2rotation(double rad);
+
 double calculate_angle_horizontal(double x, double y);
 double calculate_angle_vertical(double x, double y, double z);
 int calculate_true_vertical_rotation(int encoder_vertical_rotation );
 
 Target * create_target(double x, double y, double z);
+Movements * create_movements(void);
+
+void destroy_movements(Movements * movements);
 void destroy_target(Target * target);
 
-Movements * create_movements(void);
-void destroy_movements(Movements * movements);
 void decide_direction_vertical( int * movement, int target_rotation , int current_rotation);
 void decide_direction_horizontal( int * movement, int target_rotation, int current_rotation);
 

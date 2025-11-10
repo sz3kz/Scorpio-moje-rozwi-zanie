@@ -22,9 +22,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   	auto commands = tester->get_commands();
 
 	/* The primary control logic execution section*/
-  	motor1->add_data_callback(
-			[&motor1,&motor2, &targets, movements, &target_count]
-			(const uint16_t & data) {
+  	motor1->add_data_callback([&motor1,&motor2, &targets, movements, &target_count](const uint16_t & data){
     		int current_horizontal_rotation = data;
 		Target * target = targets.front();
 
@@ -32,9 +30,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		if (target == NULL)
 			return;
 
-		printf("M1: %4d -> %4d\n",
-			current_horizontal_rotation,
-			target->horizontal);
+		printf("M1: %4d -> %4d\n",current_horizontal_rotation,target->horizontal);
 
 		/* Stop camera if in desired horizontal rotation */
 		if (target->is_horizontal_reached){
@@ -51,21 +47,14 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		}
 
 		/* Move the camera */
-		decide_direction_horizontal(
-				    &(movements->horizontal),
-				    target->horizontal,
-				    current_horizontal_rotation);
+		decide_direction_horizontal(&(movements->horizontal),target->horizontal,current_horizontal_rotation);
 		motor1->send_data( movements->horizontal );
 
 		/* Check if camera in desired horizontal rotation */
-		target->is_horizontal_reached = is_horizontal_reached(
-				    target->horizontal,
-				    current_horizontal_rotation);
+		target->is_horizontal_reached = is_horizontal_reached(target->horizontal,current_horizontal_rotation);
   	});
 
-  	motor2->add_data_callback(
-			[&motor2,&targets,movements]
-			(const uint16_t& data) {
+  	motor2->add_data_callback([&motor2,&targets,movements](const uint16_t& data){
     		int current_vertical_rotation = calculate_true_vertical_rotation(data);
 		Target * target = targets.front();
 
@@ -73,9 +62,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		if (target == NULL)
 			return;
 
-		printf("M2: %4d -> %4d\n",
-			current_vertical_rotation,
-			target->vertical);
+		printf("M2: %4d -> %4d\n",current_vertical_rotation,target->vertical);
 
 		/* Stop camera if in desired vertical rotation */
 		if (target->is_vertical_reached){
@@ -84,24 +71,14 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		}
 
 		/* Move the camera */
-	    	decide_direction_vertical(
-		    &(movements->vertical),
-		    target->vertical,
-		    current_vertical_rotation);
+	    	decide_direction_vertical(&(movements->vertical),target->vertical,current_vertical_rotation);
     		motor2->send_data( movements->vertical );
 
 		/* Check if camera in desired horizontal rotation */
-    		target->is_vertical_reached = is_vertical_reached(
-		    target->vertical,
-		    current_vertical_rotation);
+    		target->is_vertical_reached = is_vertical_reached(target->vertical,current_vertical_rotation);
   	});
-  	commands->add_data_callback(
-			[&targets, preempt, &target_count]
-			(const Point& point) {
-		Target * target = create_target(
-		    point.x,
-		    point.y,
-		    point.z);
+  	commands->add_data_callback([&targets, preempt, &target_count](const Point& point) {
+		Target * target = create_target(point.x,point.y,point.z);
 
 		/* If preempt and previous target exists, delete it*/
 		if (preempt && target_count == 1){
@@ -112,13 +89,8 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		targets.push(target);
 		target_count++;
     		printf("\n");
-    		printf(
-		    "TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
-		    point.x,
-		    point.y,
-		    point.z,
-		    targets.front()->horizontal,
-		    targets.front()->vertical);
+    		printf("TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
+				point.x,point.y,point.z,targets.front()->horizontal,targets.front()->vertical);
   	});
 
 	std::this_thread::sleep_for(std::chrono::hours(1));
@@ -137,8 +109,7 @@ bool is_vertical_reached( int target_rotation, int current_rotation){
 	 * The vertical rotation values are neat, so no second weird condition
 	 * here, unlike with horizontal rotation.
 	 * */
-	return abs(target_rotation - current_rotation)
-		< ROTATION_ACCEPTABLE_DEVIATION;
+	return abs(target_rotation - current_rotation)< ROTATION_ACCEPTABLE_DEVIATION;
 }
 
 bool is_horizontal_reached(int target_rotation, int current_rotation){
@@ -156,8 +127,7 @@ bool is_horizontal_reached(int target_rotation, int current_rotation){
 int calculate_true_vertical_rotation(int encoder_vertical_rotation ){
 	/* Translates data given from motor2's encoder into the format
 	 * defined in calculate_angle_vertical*/
-	if (encoder_vertical_rotation > FULL_ROTATION * (0.75)
-			&& encoder_vertical_rotation < FULL_ROTATION)
+	if (encoder_vertical_rotation > FULL_ROTATION * (0.75) && encoder_vertical_rotation < FULL_ROTATION)
 		return encoder_vertical_rotation - FULL_ROTATION;
 	else
 		return encoder_vertical_rotation ;
