@@ -4,31 +4,35 @@
 #include <iostream>
 #include <thread>
 #include <stdlib.h>
+#include <queue>
 
 #include "../../include/solution/solution.h"
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
-	Target * target = NULL;
+	std::queue<Target *> targets;
 	Movements * movements = create_movements();
 	movements->horizontal = MOTOR_MOVE;
 	movements->vertical = MOTOR_MOVE;
 
   	std::cout << (preempt ? "Preempt" : "Queue") << '\n';
+	if (preempt)
+		targets.push(create_target(0,0,0)); //dummy target that ensures smooth queue handling
 
   	auto motor1 = tester->get_motor_1();
   	auto motor2 = tester->get_motor_2();
   	auto commands = tester->get_commands();
 
   	motor1->add_data_callback(
-			[&motor1, &target, movements]
+			[&motor1, &targets, movements]
 			(const uint16_t & data) {
     		int current_horizontal_rotation = data;
+		Target * target = targets.front();
 		if (target == NULL)
 			return;
 		if (target->is_horizontal_reached && target->is_vertical_reached){
 			puts("TARGET REACHED!");
 			destroy_target(target);
-			target = NULL;
+			targets.pop();
 			return;
 		}
 
@@ -46,9 +50,10 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
   	});
 
   	motor2->add_data_callback(
-			[&motor2,&target,movements]
+			[&motor2,&targets,movements]
 			(const uint16_t& data) {
     		int current_vertical_rotation = calculate_true_vertical_rotation(data);
+		Target * target = targets.front();
 		if (target == NULL || target->is_vertical_reached)
 			return;
 
@@ -65,20 +70,23 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		    target->vertical);
   	});
   	commands->add_data_callback(
-			[&target]
+			[&targets, preempt]
 			(const Point& point) {
-    		target = create_target(
+		Target * target = create_target(
 		    point.x,
 		    point.y,
 		    point.z);
+		if (preempt)
+			targets.pop();
+		targets.push(target);
     		printf("\n");
     		printf(
 		    "TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
 		    point.x,
 		    point.y,
 		    point.z,
-		    target->horizontal,
-		    target->vertical);
+		    targets.front()->horizontal,
+		    targets.front()->vertical);
   	});
 	std::this_thread::sleep_for(std::chrono::hours(1));
 	destroy_movements(movements);
