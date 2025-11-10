@@ -105,6 +105,7 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 
 		/* If preempt and previous target exists, delete it*/
 		if (preempt && target_count == 1){
+			destroy_target(targets.front());
 			targets.pop();
 			target_count--;
 		}
