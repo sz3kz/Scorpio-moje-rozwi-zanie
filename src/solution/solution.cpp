@@ -10,33 +10,42 @@
 
 int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 	std::queue<Target *> targets;
+	int target_count = 0;
 	Movements * movements = create_movements();
 	movements->horizontal = MOTOR_MOVE;
 	movements->vertical = MOTOR_MOVE;
 
   	std::cout << (preempt ? "Preempt" : "Queue") << '\n';
-	if (preempt)
-		targets.push(create_target(0,0,0)); //dummy target that ensures smooth queue handling
 
   	auto motor1 = tester->get_motor_1();
   	auto motor2 = tester->get_motor_2();
   	auto commands = tester->get_commands();
 
   	motor1->add_data_callback(
-			[&motor1, &targets, movements]
+			[&motor1,&motor2, &targets, movements, &target_count]
 			(const uint16_t & data) {
     		int current_horizontal_rotation = data;
 		Target * target = targets.front();
 		if (target == NULL)
 			return;
-		if (target->is_horizontal_reached && target->is_vertical_reached){
-			puts("TARGET REACHED!");
-			destroy_target(target);
-			targets.pop();
+
+		printf("M1: %4d -> %4d\n",
+			current_horizontal_rotation,
+			target->horizontal);
+
+		if (target->is_horizontal_reached){
+			motor1->send_data(MOTOR_STOP);
+			if (target->is_vertical_reached){
+				motor2->send_data(MOTOR_STOP);
+				destroy_target(target);
+				targets.pop();
+				target_count--;
+				printf("Target reached, %d targets left!\n",target_count);
+			}
 			return;
 		}
 
-    		decide_direction_horizontal(
+		decide_direction_horizontal(
 				    &(movements->horizontal),
 				    target->horizontal,
 				    current_horizontal_rotation);
@@ -44,9 +53,6 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 		target->is_horizontal_reached = is_horizontal_reached(
 				    target->horizontal,
 				    current_horizontal_rotation);
-		printf("M1: %4d -> %4d\n",
-				    current_horizontal_rotation,
-				    target->horizontal);
   	});
 
   	motor2->add_data_callback(
@@ -54,8 +60,17 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
 			(const uint16_t& data) {
     		int current_vertical_rotation = calculate_true_vertical_rotation(data);
 		Target * target = targets.front();
-		if (target == NULL || target->is_vertical_reached)
+		if (target == NULL)
 			return;
+
+    		printf("M2: %4d -> %4d\n",
+		    current_vertical_rotation,
+		    target->vertical);
+
+		if (target->is_vertical_reached){
+			motor2->send_data(MOTOR_STOP);
+			return;
+		}
 
 	    	decide_direction_vertical(
 		    &(movements->vertical),
@@ -65,20 +80,22 @@ int solver(std::shared_ptr<backend_interface::Tester> tester, bool preempt) {
     		target->is_vertical_reached = is_vertical_reached(
 		    target->vertical,
 		    current_vertical_rotation);
-    		printf("M2: %4d -> %4d\n",
-		    current_vertical_rotation,
-		    target->vertical);
   	});
   	commands->add_data_callback(
-			[&targets, preempt]
+			[&targets, preempt, &target_count]
 			(const Point& point) {
 		Target * target = create_target(
 		    point.x,
 		    point.y,
 		    point.z);
-		if (preempt)
+		printf("Target_count = %d\n",target_count);
+		if (preempt && target_count != 0){
 			targets.pop();
+			target_count--;
+		}
+		printf("Target_count = %d\n",target_count);
 		targets.push(target);
+		target_count++;
     		printf("\n");
     		printf(
 		    "TARGET:(%lf,%lf,%lf) --> ANGLES:(%4d, %4d)\n",
