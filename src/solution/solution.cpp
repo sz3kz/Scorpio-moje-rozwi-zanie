@@ -116,14 +116,14 @@ void decide_direction_vertical( int * movement, int target_rotation , int curren
 }
 
 void decide_direction_horizontal( int * movement, int target_rotation, int current_rotation){
-	if ( abs(target_rotation - current_rotation) < abs(FULL_ROTATION - target_rotation - current_rotation)){
-		if (target_rotation - current_rotation < 0)
+	if (target_rotation > current_rotation){
+		if (target_rotation - current_rotation > FULL_ROTATION * 0.5)
 			*movement = (-1) * abs(*movement);
 		else
 			*movement = abs(*movement);
 	}
 	else{
-		if (FULL_ROTATION - target_rotation - current_rotation < 0)
+		if (current_rotation - target_rotation > FULL_ROTATION * 0.5)
 			*movement = abs(*movement);
 		else
 			*movement = (-1) * abs(*movement);
